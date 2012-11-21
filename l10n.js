@@ -1005,8 +1005,8 @@ document.webL10n = (function(window, document, undefined) {
     // get the direction (ltr|rtl) of the current language
     getDirection: function() {
       // http://www.w3.org/International/questions/qa-scripts
-      // Arabic, Hebrew, Farsi, Pashto, Urdu
-      var rtlList = ['ar', 'he', 'fa', 'ps', 'ur'];
+      // rtlList from: http://meta.wikimedia.org/wiki/Template:List_of_language_names_ordered_by_code
+      var rtlList = ['ar','dv','fa','ha','he','ks','ku','ps','ur','yi'];
       return (rtlList.indexOf(gLanguage) >= 0) ? 'rtl' : 'ltr';
     },
 
