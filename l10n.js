@@ -1,4 +1,5 @@
 /** Copyright (c) 2011-2012 Fabien Cazenave, Mozilla.
+  * Copyright (c) 2012 Marcel Klehr
   *
   * Permission is hereby granted, free of charge, to any person obtaining a copy
   * of this software and associated documentation files (the "Software"), to
@@ -127,11 +128,11 @@ document.webL10n = (function(window, document, undefined) {
 
     // parse *.properties text data into an l10n dictionary
     function parseProperties(text) {
-      var dictionary = [];
+      var dictionary = {};
 
       // token expressions
       var reBlank = /^\s*|\s*$/;
-      var reComment = /^\s*#|^\s*$/;
+      var reComment = /^\s*;|^\s*$/;// Use ; for comments!
       var reSection = /^\s*\[(.*)\]\s*$/;
       var reImport = /^\s*@import\s+url\((.*)\)\s*$/i;
       var reSplit = /^([^=\s]*)\s*=\s*(.+)$/; // TODO: escape EOLs with '\'
@@ -169,6 +170,7 @@ document.webL10n = (function(window, document, undefined) {
           }
 
           // key-value pair
+          consoleLog(tmp)
           var tmp = line.match(reSplit);
           if (tmp && tmp.length == 3)
             dictionary[tmp[1]] = evalString(tmp[2]);
@@ -214,11 +216,19 @@ document.webL10n = (function(window, document, undefined) {
 
       // parse *.properties text data into an l10n dictionary
       var data = parseProperties(response);
+      
+      // allowed attributes
+      var attrList =
+      { "title": 1
+      , "innerHTML": 1
+      , "alt": 1
+      , "textContent": 1
+      }
 
       // find attribute descriptions, if any
       for (var key in data) {
         var id, prop, index = key.lastIndexOf('.');
-        if (index > 0) { // an attribute has been specified
+        if (index > 0 && key.substr(index + 1) in attrList) { // an attribute has been specified
           id = key.substring(0, index);
           prop = key.substr(index + 1);
         } else { // no attribute: assuming text content by default
@@ -893,7 +903,7 @@ document.webL10n = (function(window, document, undefined) {
   // browser-specific startup
   if (document.addEventListener) { // modern browsers and IE9+
     document.addEventListener('DOMContentLoaded', function() {
-      var lang = document.documentElement.lang || navigator.language;
+      var lang = document.documentElement.lang || navigator.language || navigator.userLanguage || 'en';
       loadLocale(lang, translateFragment);
     }, false);
   } else if (window.attachEvent) { // IE8 and before (= oldIE)
@@ -968,7 +978,7 @@ document.webL10n = (function(window, document, undefined) {
     // startup for IE<9
     window.attachEvent('onload', function() {
       gTextProp = document.body.textContent ? 'textContent' : 'innerText';
-      var lang = document.documentElement.lang || window.navigator.userLanguage;
+      var lang = document.documentElement.lang || navigator.language || navigator.userLanguage || 'en';
       loadLocale(lang, translateFragment);
     });
   }
@@ -1013,3 +1023,7 @@ document.webL10n = (function(window, document, undefined) {
 if (window._ === undefined)
   var _ = document.webL10n.get;
 
+// CommonJS
+try {
+  exports = document.webL10n;
+}catch(e){}
