@@ -1,13 +1,13 @@
-# client-side, cross-browser i18n/l10n for modern web applications
+# client-side, cross-browser l10n for modern web applications
 
-Unlike other i18n/l10n libraries, webL10n supports:
+Unlike other i18n/l10n libraries, trl8.js supports:
 
 * declarative localization: elements with `l10n-*` attributes are automatically translated when the document is loaded
 * named variables instead of printf-like `%s` tokens
 * a simple and full-featured pluralization system
 * server-less language negotiation (perfect for webapps)
 
-Thanks to @fabi1cazenave for his work original on [webL10n](https://github.com/fabi1cazenave/webL10n/wiki) on which this project is based. Instead of featuring some weird `*.ini`/`*.properties`/`*.lol` format, this project expects translations to be provided in JSON for easier handling in JavaScript and better client-side performance.
+Thanks to @fabi1cazenave for his original work on [webL10n](https://github.com/fabi1cazenave/webL10n/wiki) on which this project is based. Instead of featuring some weird `*.ini`/`*.properties`/`*.lol` format, this project expects translations to be provided in JSON for easier handling in JavaScript and better client-side performance.
 
 ## Example
 
@@ -32,33 +32,31 @@ Here’s a quick way to get a multilingual HTML page:
 ```json
 {
 "en": {
-  "test": "This is a test"
+  "test": "This is a test",
   "test.title": "click me!"
 },
 "fr": {
-  "test": "Ceci est un test"
+  "test": "Ceci est un test",
   "test.title": "cliquez-moi!"
 }
 }
 ```
 
 
-JavaScript API
---------------
+# JavaScript API
 
 `trl8.js` exposes a rather simple `trl8` object.
+
+* `localized` event: fired when the page has been translated;
+* `localize`set the ISO-639-1 code of the current locale and start translating the document;
+* `get` method: get a translated string.
 
 ```javascript
 // Set the 'lang' and 'dir' attributes to <html> when the page is translated
 trl8.on('localized', function() {
-  document.documentElement.lang = document.webL10n.getLanguage();
-  document.documentElement.dir = document.webL10n.getDirection();
+  console.log('Localized!')
 });
 ```
-* `localized` event: fired when the page has been translated;
-* `getLanguage` / `setLanguage` method: get/set the ISO-639-1 code of the current locale;
-* `getDirection` method: direction (ltr|rtl) of the current language;
-* `get` method: get a translated string.
 
 ```javascript
 var message = trl8.get('test');
@@ -68,7 +66,7 @@ alert(message);
 You will probably use a gettext-like alias:
 
 ```javascript
-var _ = document.webL10n.get;
+var _ = trl8.get;
 alert(_('test'));
 ```
 
@@ -160,8 +158,7 @@ welcome#mark = welcome, **{{user}}**!
 ```
 
 
-Further thoughts
-----------------
+# Further thoughts
 
 ### Media queries
 
@@ -173,18 +170,9 @@ For mobile apps, here’s what I’d like to do:
       media="screen and (max-width: 640px)" />
 ```
 
-### Multi-line strings
-
-Multi-line and wrapped strings aren’t supported at the moment. The *.properties way to extend a string on several lines is to use a backslash at the end of line… but there could be sharper/easier ways to handle that.
-
-YAML handles multi-line / wrapped strings nicely with the pipe and backslash operators, maybe we could reuse that in webL10n?
-
-
 ### More structured syntax
 
 There are cases where the entity has to be an array or a list (e.g. to handle plural rules), instead of a string. Currently we use the `entity[key]` notation but a more compact syntax could be supported as well.
-
-Alternatively, we could use a JSON- or YAML-like file format to handle the whole structure in a more modern way.
 
 
 ### Logical expressions
@@ -198,14 +186,11 @@ plural(n) = { n == 0 ? 'zero' : (n == 1 ? 'one' : 'other') }
 ```
 
 
-Browser support
----------------
+# Browser support
 
-Tested on Firefox, Chrome, Opera and Internet Explorer 6 to 10.
+Should work with Firefox, Chrome, Opera and Internet Explorer 6 to 10.
 
 
-License
--------
+# License
 
-BSD/MIT/WTFPL license. Use at your own risk.
-
+MIT license. 

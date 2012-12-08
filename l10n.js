@@ -1,5 +1,6 @@
-﻿/**
+/**
  * Copyright (c) 2012 Marcel Klehr
+ * Copyright (c) 2011-2012 Fabien Cazenave, Mozilla
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to
@@ -795,7 +796,7 @@ window.trl8 = (function(window, document, undefined) {
       cb(null, build)
     })
   }
-  
+
   /**
    * Index all <link>s
    */
@@ -810,7 +811,6 @@ window.trl8 = (function(window, document, undefined) {
     this.loader = new Loader(resources)
     this.trigger('indexed')
   }
-  
   
   if (document.addEventListener) // modern browsers and IE9+
    document.addEventListener('DOMContentLoaded', trl8.index, false)
