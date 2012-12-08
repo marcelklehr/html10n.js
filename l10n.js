@@ -54,8 +54,9 @@ window.trl8 = (function(window, document, undefined) {
    */
   MicroEvent.mixin	= function(destObject){
     var props	= ['bind', 'unbind', 'trigger'];
+    if(!destObject.prototype) destObject.prototype = {};
     for(var i = 0; i < props.length; i ++){
-      destObject.prototype[props[i]]	= MicroEvent.prototype[props[i]];
+      destObject.prototype[props[i]] = MicroEvent.prototype[props[i]];
     }
   }
   
@@ -687,8 +688,8 @@ window.trl8 = (function(window, document, undefined) {
     
     // replace {[macros]} with their values
     function substMacros(key, str, args) {
-      var regex = /\{\[\s*([a-zA-Z]+):([a-zA-Z]+)\s*\]\}/;
-        , match = reIndex.exec(str);
+      var regex = /\{\[\s*([a-zA-Z]+):([a-zA-Z]+)\s*\]\}/
+        , match = regex.exec(str);
       if (!match || !match.length)
         return str;
 
