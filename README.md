@@ -1,22 +1,15 @@
-webL10n is a client-side, cross-browser i18n/l10n library (internationalization / localization), designed with modern web applications in mind.
+# client-side, cross-browser i18n/l10n for modern web applications
 
 Unlike other i18n/l10n libraries, webL10n supports:
 
-* declarative localization: elements with `l10n-*` attributes are automatically translated when the document is loaded;
-* named variables instead of printf-like `%s` tokens;
-* a simple and full-featured pluralization system;
-* server-less language negotiation (think of offline webapps);
+* declarative localization: elements with `l10n-*` attributes are automatically translated when the document is loaded
+* named variables instead of printf-like `%s` tokens
+* a simple and full-featured pluralization system
+* server-less language negotiation (perfect for webapps)
 
-We don’t focus on the gettext format: the bullet-proof `*.properties` format, used in Mozilla and GWT projects, is preferred — at least, by default.
+Thanks to @fabi1cazenave for his work original on [webL10n](https://github.com/fabi1cazenave/webL10n/wiki) on which this project is based. Instead of featuring some weird `*.ini`/`*.properties`/`*.lol` format, this project expects translations to be provided in JSON for easier handling in JavaScript and better client-side performance.
 
-Demo: <http://fabi1cazenave.github.com/webL10n/> (outdated — feel free to submit a new one! ^^)
-
-This library is also used by the FirefoxOS front-end (Gaia) with a different JavaScript API: a modern API for FirefoxOS/Gaia (with web standards in mind), a basic cross-browser one in webL10n (compatibility with IE6/IE7/IE8).
-
-[More information on the Wiki.](https://github.com/fabi1cazenave/webL10n/wiki)
-
-Quick Start
------------
+## Example
 
 Here’s a quick way to get a multilingual HTML page:
 
@@ -24,7 +17,7 @@ Here’s a quick way to get a multilingual HTML page:
 <html>
 <head>
   <script type="text/javascript" src="l10n.js"></script>
-  <link rel="resource" type="application/l10n" href="data.ini" />
+  <link rel="localizations" href="i18n.json" type="application/l10n+json"/>
 </head>
 <body>
   <button data-l10n-id="test" title="click me!">This is a test</button>
@@ -34,29 +27,33 @@ Here’s a quick way to get a multilingual HTML page:
 
 * l10n resource files are associated to the HTML document with a ``<link>`` element;
 * translatable elements carry a ``data-l10n-id`` attribute;
-* l10n resources are stored in a bullet-proof ``*.ini`` file:
+* l10n resources are stored in a bullet-proof ``*.json`` file:
 
-```ini
-[en-US]
-test = This is a test
-test.title = click me!
-[fr]
-test = Ceci est un test
-test.title = cliquez-moi !
+```json
+{
+"en": {
+  "test": "This is a test"
+  "test.title": "click me!"
+},
+"fr": {
+  "test": "Ceci est un test"
+  "test.title": "cliquez-moi!"
+}
+}
 ```
 
 
 JavaScript API
 --------------
 
-`l10n.js` exposes a rather simple `document.webL10n` object.
+`trl8.js` exposes a rather simple `trl8` object.
 
 ```javascript
 // Set the 'lang' and 'dir' attributes to <html> when the page is translated
-window.addEventListener('localized', function() {
+trl8.on('localized', function() {
   document.documentElement.lang = document.webL10n.getLanguage();
   document.documentElement.dir = document.webL10n.getDirection();
-}, false);
+});
 ```
 * `localized` event: fired when the page has been translated;
 * `getLanguage` / `setLanguage` method: get/set the ISO-639-1 code of the current locale;
@@ -64,7 +61,7 @@ window.addEventListener('localized', function() {
 * `get` method: get a translated string.
 
 ```javascript
-var message = document.webL10n.get('test');
+var message = trl8.get('test');
 alert(message);
 ```
 
@@ -83,16 +80,16 @@ alert(_('welcome', { user: "John" }));
 
 where `welcome` is defined like this:
 
-```ini
-[en-US]
-welcome = welcome, {{user}}!
-[fr]
-welcome = bienvenue, {{user}} !
+```json
+{
+"en": {
+  "welcome": "welcome, {{user}}!"
+},
+"fr": {
+  "welcome": "bienvenue, {{user}} !"
+}
+}
 ```
-
-
-Advanced usage
---------------
 
 ### l10n arguments
 
@@ -102,22 +99,25 @@ You can specify a default value in JSON for any argument in the HTML document wi
 <p data-l10n-id="welcome" data-l10n-args='{ "user": "your awesomeness" }'>Welcome!</p>
 ```
 
-### @import rules
+### import rules
 
-If you don’t want to have all your locales in a single file or if you want to
-share strings between several pages, you can use CSS-like `@import` rules.
+If you don’t want to have all your locales in a single file, simply use an import rule in your locale files to import another language:
 
-More information on the [Language Selection](https://github.com/fabi1cazenave/webL10n/wiki/Language-Selection) page.
+```js
+{ "en": {
+// ...
+},
+"fr": "/locales/fr.json",
+"nl": "/locales/nl.json"
+}
+```
 
 ### Pluralization
 
 The following strings might be gramatically incorrect when `n` equals zero or one:
 
-```ini
-[en-US]
-unread = You have {{n}} unread messages
-[fr]
-unread = Vous avez {{n}} nouveaux messages
+```
+"unread": "You have {{n}} unread messages"
 ```
 
 This can be solved by using the pre-defined `plural()` macro:
