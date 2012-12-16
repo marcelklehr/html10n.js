@@ -20,7 +20,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
  * IN THE SOFTWARE.
  */
-window.trl8 = (function(window, document, undefined) {
+window.html10n = (function(window, document, undefined) {
   var consoleLog = console? console.log : function() {}
     , consoleWarn = console? console.warn : function() {}
     
@@ -146,14 +146,14 @@ window.trl8 = (function(window, document, undefined) {
   
   
   /**
-   * The trl8 object
+   * The html10n object
    */
-  var trl8 =
+  var html10n =
   { language: null
   }
-  MicroEvent.mixin(trl8)
+  MicroEvent.mixin(html10n)
   
-  trl8.macros = {}
+  html10n.macros = {}
   
   /**
    * Get rules for plural forms (shared with JetPack), see:
@@ -568,14 +568,14 @@ window.trl8 = (function(window, document, undefined) {
   /**
    * pre-defined 'plural' macro
    */
-  trl8.macros.plural = function(translations, key, str, param) {
+  html10n.macros.plural = function(translations, key, str, param) {
     var n = parseFloat(param);
     if (isNaN(n))
       return str;
 
     // initialize _pluralRules
     if (!this._pluralRules)
-      this._pluralRules = getPluralRules(trl8.language);
+      this._pluralRules = getPluralRules(html10n.language);
     var index = '[' + this._pluralRules(n) + ']';
 
     // try to find a [zero|one|two] key if it's defined
@@ -596,13 +596,13 @@ window.trl8 = (function(window, document, undefined) {
    * Localize a document
    * @param langs An array of lang codes defining fallbacks
    */
-  trl8.localize = function(langs) {
+  html10n.localize = function(langs) {
     // if only one string => create an array
     if ('string' == typeof langs) langs = [langs]
     
     this.build(langs, function(er, translations) {
-      trl8.translations = translations
-      trl8.translateElement(translations)
+      html10n.translations = translations
+      html10n.translateElement(translations)
     })
   }
 
@@ -612,7 +612,7 @@ window.trl8 = (function(window, document, undefined) {
    * @param translations A hash of all translation strings
    * @param element A DOM element, if omitted, the document element will be used
    */
-  trl8.translateElement = function(translations, element) {
+  html10n.translateElement = function(translations, element) {
     element = element || document.documentElement
 
     var children = element? getTranslatableChildren(element) : document.childNodes;
@@ -649,8 +649,8 @@ window.trl8 = (function(window, document, undefined) {
     return element.querySelectorAll('*[data-l10n-id]')
   }
   
-  trl8.get = function(id, args) {
-    var translations = trl8.translations
+  html10n.get = function(id, args) {
+    var translations = html10n.translations
     if(!translations[id]) return consoleWarn('Could not find string '+id)
     
     // apply args
@@ -708,7 +708,7 @@ window.trl8 = (function(window, document, undefined) {
       }
 
       // there's no macro parser yet: it has to be defined in gMacros
-      var macro = trl8.macros[macroName]
+      var macro = html10n.macros[macroName]
       str = macro(translations, key, str, param)
       return str
     }
@@ -717,7 +717,7 @@ window.trl8 = (function(window, document, undefined) {
   /**
    * Applies translations to a DOM node (recursive)
    */
-  trl8.translateNode = function(translations, node) {
+  html10n.translateNode = function(translations, node) {
     var str = {}
 
     // get id
@@ -736,7 +736,7 @@ window.trl8 = (function(window, document, undefined) {
       }
     }
     
-    str.str = trl8.get(str.id, str.args)
+    str.str = html10n.get(str.id, str.args)
     
     var prop
       , index = str.id.lastIndexOf('.')
@@ -779,11 +779,11 @@ window.trl8 = (function(window, document, undefined) {
    * Builds a translation object from a list of langs (loads the necessary translations)
    * @param langs Array - a list of langs sorted by priority (default langs should go last)
    */
-  trl8.build = function(langs, cb) {
+  html10n.build = function(langs, cb) {
     var build = {}
 
     asyncForEach(langs, function (lang, i, next) {
-      trl8.loader.load(lang, next)
+      html10n.loader.load(lang, next)
     }, function() {
     
       langs.reverse()
@@ -801,7 +801,7 @@ window.trl8 = (function(window, document, undefined) {
   /**
    * Index all <link>s
    */
-  trl8.index = function () {
+  html10n.index = function () {
     // Find all <link>s
     var links = document.getElementsByTagName('link')
     for (var i=0, n=links.length; i < n; i++) {
@@ -814,12 +814,12 @@ window.trl8 = (function(window, document, undefined) {
   }
   
   if (document.addEventListener) // modern browsers and IE9+
-   document.addEventListener('DOMContentLoaded', trl8.index, false)
+   document.addEventListener('DOMContentLoaded', html10n.index, false)
   else if (window.attachEvent)
-    document.attachEvent('onload', trl8.index, false)
+    document.attachEvent('onload', html10n.index, false)
 
   // gettext-like shortcut
   if (window._ === undefined)
-    var _ = trl8.get;
+    var _ = html10n.get;
 
 })(window, document)

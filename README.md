@@ -1,11 +1,10 @@
 # client-side, cross-browser l10n for modern web applications
 
-Unlike other i18n/l10n libraries, trl8.js supports:
+Unlike other i18n/l10n libraries, html10n.js supports:
 
 * declarative localization: elements with `l10n-*` attributes are automatically translated when the document is loaded
 * named variables instead of printf-like `%s` tokens
 * a simple and full-featured pluralization system
-* server-less language negotiation (perfect for webapps)
 
 Thanks to @fabi1cazenave for his original work on [webL10n](https://github.com/fabi1cazenave/webL10n/wiki) on which this project is based. Instead of featuring some weird `*.ini`/`*.properties`/`*.lol` format, this project expects translations to be provided in JSON for easier handling in JavaScript and better client-side performance.
 
@@ -45,28 +44,28 @@ Here’s a quick way to get a multilingual HTML page:
 
 # JavaScript API
 
-`trl8.js` exposes a rather simple `trl8` object.
+`html10n.js` exposes a rather simple `html10n` object.
 
 * `localized` event: fired when the page has been translated;
 * `localize`set the ISO-639-1 code of the current locale and start translating the document;
 * `get` method: get a translated string.
 
 ```javascript
-// Set the 'lang' and 'dir' attributes to <html> when the page is translated
-trl8.on('localized', function() {
+html10n.localize('fr')
+html10n.on('localized', function() {
   console.log('Localized!')
 });
 ```
 
 ```javascript
-var message = trl8.get('test');
+var message = html10n.get('test');
 alert(message);
 ```
 
 You will probably use a gettext-like alias:
 
 ```javascript
-var _ = trl8.get;
+var _ = html10n.get;
 alert(_('test'));
 ```
 
