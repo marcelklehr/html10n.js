@@ -54,9 +54,9 @@ window.html10n = (function(window, document, undefined) {
    */
   MicroEvent.mixin	= function(destObject){
     var props	= ['bind', 'unbind', 'trigger'];
-    if(!destObject.prototype) destObject.prototype = {};
+    if(!destObject) return;
     for(var i = 0; i < props.length; i ++){
-      destObject.prototype[props[i]] = MicroEvent.prototype[props[i]];
+      destObject[props[i]] = MicroEvent.prototype[props[i]];
     }
   }
   
@@ -79,10 +79,10 @@ window.html10n = (function(window, document, undefined) {
       for (var i=0, n=this.resources.length; i < n; i++) {
         this.fetch(this.resources[i], lang, function(e) {
           reqs++;
-          if(e) setTimeout(function(){ throw e }, 0)
+          if(e) return setTimeout(function(){ throw e }, 0)
           
           if (reqs < n) return;// Call back once all reqs are completed
-          cb()
+          cb && cb()
         })
       }
     }
@@ -92,8 +92,7 @@ window.html10n = (function(window, document, undefined) {
     var that = this
     
     if (this.cache[href]) {
-      this.parse(this.cache[href])
-      cb()
+      this.parse(lang, href, this.cache[href], cb)
       return;
     }
     
@@ -108,7 +107,7 @@ window.html10n = (function(window, document, undefined) {
           var data = JSON.parse(xhr.responseText)
           that.cache[href] = data
           // Pass on the contents for parsing
-          this.parse(lang, data, cb)
+          that.parse(lang, href, data, cb)
         } else {
           cb(new Error('Failed to load '+href))
         }
@@ -117,12 +116,13 @@ window.html10n = (function(window, document, undefined) {
     xhr.send(null);
   }
   
-  Loader.prototype.parse = function(lang, data, cb) {
+  Loader.prototype.parse = function(lang, currHref, data, cb) {
     if ('object' != typeof data) {
       cb(new Error('A file couldn\'t be parsed as json.'))
       return
     }
     
+    if (!data[lang]) lang = lang.substr(0, lang.indexOf('-') == -1? lang.length : lang.indexOf('-'))
     if (!data[lang]) {
       cb(new Error('Couldn\'t find translations for '+lang))
       return
@@ -130,15 +130,24 @@ window.html10n = (function(window, document, undefined) {
     
     if ('string' == typeof data[lang]) {
       // Import rule
-      this.fetch(data[lang], lang, cb)
+
+      // absolute path
+      var importUrl = data[lang]
+
+      // relative path
+      if(data[lang].indexOf("http") != 0 && data[lang].indexOf("/") != 0) {  
+        importUrl = currHref+"/../"+data[lang]
+      }
+
+      this.fetch(importUrl, lang, cb)
       return
     }
-    
+
     if ('object' != typeof data[lang]) {
       cb(new Error('Translations should be specified as JSON objects!'))
       return
     }
-    
+
     this.langs[lang] = data[lang]
     // TODO: Also store accompanying langs
     cb()
@@ -148,8 +157,8 @@ window.html10n = (function(window, document, undefined) {
   /**
    * The html10n object
    */
-  var html10n =
-  { language: null
+  var html10n = 
+  { language : null
   }
   MicroEvent.mixin(html10n)
   
@@ -619,18 +628,18 @@ window.html10n = (function(window, document, undefined) {
 
     var children = element? getTranslatableChildren(element) : document.childNodes;
     for (var i=0, n=children.length; i < n; i++) {
-      translateNode(translations, children[i])
+      this.translateNode(translations, children[i])
     }
 
     // translate element itself if necessary
-    translateNode(translations, element)
+    this.translateNode(translations, element)
   }
   
-    function asyncForEach(list, iterator, cb) {
+  function asyncForEach(list, iterator, cb) {
     var i = 0
       , n = list.length
     iterator(list[i], i, function each(err) {
-      consoleLog(err)
+      if(err) consoleLog(err)
       i++
       if (i < n) return iterator(list[i],i, each);
       cb()
@@ -653,13 +662,14 @@ window.html10n = (function(window, document, undefined) {
   
   html10n.get = function(id, args) {
     var translations = html10n.translations
+    if(!translations) return consoleWarn('No translations available (yet)')
     if(!translations[id]) return consoleWarn('Could not find string '+id)
     
     // apply args
-    str = substArguments(translations[id], args)
+    var str = substArguments(translations[id], args)
     
     // apply macros
-    return substMacros(translations, id, str, args)
+    return substMacros(id, str, args)
     
     // replace {{arguments}} with their values or the
     // associated translation string (based on its key)
@@ -759,7 +769,7 @@ window.html10n = (function(window, document, undefined) {
     if (node.children.length === 0) {
       node[prop] = str.str
     } else {
-      var children = element.childNodes,
+      var children = node.childNodes,
           found = false
       for (var i=0, n=children.length; i < n; i++) {
         if (children[i].nodeType === 3 && /\S/.test(children[i].textContent)) {
@@ -772,7 +782,7 @@ window.html10n = (function(window, document, undefined) {
         }
       }
       if (!found) {
-        consoleWarn('Unexpected error: could not translate element content')
+        consoleWarn('Unexpected error: could not translate element content for key '+str.id, node)
       }
     }
   }
@@ -786,20 +796,27 @@ window.html10n = (function(window, document, undefined) {
       , build = {}
 
     asyncForEach(langs, function (lang, i, next) {
-      html10n.loader.load(lang, next)
+      if(!lang) return next();
+      that.loader.load(lang, next)
     }, function() {
-    
+      var lang
       langs.reverse()
+      
+      // loop through priority array...
       for (var i=0, n=langs.length; i < n; i++) {
-        // apply all strings of the current lang in the list
+        lang = langs[i]
+        
+        if(!lang || !(lang in that.loader.langs)) continue;
+        
+        // ... and apply all strings of the current lang in the list
         // to our build object
-        for (var string in this.loader.langs[i]) {
-          build[string] = this.loader.langs[lang][string]
+        for (var string in that.loader.langs[lang]) {
+          build[string] = that.loader.langs[lang][string]
         }
         
         // the last applied lang will be exposed as the
         // lang the page was translated to
-        that.language = langs[i]
+        that.language = lang
       }
       cb(null, build)
     })
@@ -810,7 +827,7 @@ window.html10n = (function(window, document, undefined) {
    * thus overriding most of the formerly applied langs
    */
   html10n.getLanguage = function() {
-    this.language
+    return this.language;
   }
 
   /**
@@ -819,6 +836,7 @@ window.html10n = (function(window, document, undefined) {
   html10n.index = function () {
     // Find all <link>s
     var links = document.getElementsByTagName('link')
+       , resources = []
     for (var i=0, n=links.length; i < n; i++) {
       if (links[i].type != 'application/l10n+json')
         continue;
@@ -829,12 +847,17 @@ window.html10n = (function(window, document, undefined) {
   }
   
   if (document.addEventListener) // modern browsers and IE9+
-   document.addEventListener('DOMContentLoaded', html10n.index, false)
+   document.addEventListener('DOMContentLoaded', function() {
+     html10n.index()
+   }, false)
   else if (window.attachEvent)
-    document.attachEvent('onload', html10n.index, false)
+    document.attachEvent('onload', function() {
+     html10n.index()
+   }, false)
 
   // gettext-like shortcut
   if (window._ === undefined)
-    var _ = html10n.get;
+    window._ = html10n.get;
 
+  return html10n
 })(window, document)
