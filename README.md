@@ -24,8 +24,8 @@ Here’s a quick way to get a multilingual HTML page:
 </html>
 ```
 
-* l10n resource files are associated to the HTML document with a ``<link>`` element;
-* translatable elements carry a ``data-l10n-id`` attribute;
+* l10n resource files are associated to the HTML document with a ``<link>`` element
+* translatable elements carry a ``data-l10n-id`` attribute
 * l10n resources are stored in a bullet-proof ``*.json`` file:
 
 ```json
@@ -62,10 +62,9 @@ var message = html10n.get('test');
 alert(message);
 ```
 
-You will probably use a gettext-like alias:
+You will probably use the gettext-like alias:
 
 ```javascript
-var _ = html10n.get;
 alert(_('test'));
 ```
 
@@ -96,9 +95,9 @@ You can specify a default value in JSON for any argument in the HTML document wi
 <p data-l10n-id="welcome" data-l10n-args='{ "user": "your awesomeness" }'>Welcome!</p>
 ```
 
-### import rules
+### include rules
 
-If you don’t want to have all your locales in a single file, simply use an import rule in your locale files to import another language:
+If you don’t want to have all your locales in a single file, simply use an include rule in your locale files to include another language:
 
 ```js
 { "en": {
@@ -119,41 +118,34 @@ The following strings might be gramatically incorrect when `n` equals zero or on
 
 This can be solved by using the pre-defined `plural()` macro:
 
-```ini
-[en-US]
-unreadMessages = {[ plural(n) ]}
-unreadMessages[zero]  = You have no unread messages
-unreadMessages[one]   = You have one unread message
-unreadMessages[other] = You have {{n}} unread messages
-[fr]
-unreadMessages = {[ plural(n) ]}
-unreadMessages[zero]  = Vous n’avez pas de nouveau message
-unreadMessages[one]   = Vous avez un nouveau message
-unreadMessages[other] = Vous avez {{n}} nouveaux messages
+```json
+{
+"en": {
+ "unreadMessages": "{[ plural(n) ]}"
+ "unreadMessages[zero]": "You have no unread messages"
+ "unreadMessages[one]": "You have one unread message"
+ "unreadMessages[other]": "You have {{n}} unread messages"
+},
+"fr": {
+ "unreadMessages": "{[ plural(n) ]}"
+ "unreadMessages[zero]": "Vous n’avez pas de nouveau message"
+ "unreadMessages[one]": "Vous avez un nouveau message"
+ "unreadMessages[other]": "Vous avez {{n}} nouveaux messages"
+}
+}
 ```
 
-Here, `unreadMessages` is an array and `{[plural(n)]}` points to the selected index.
+Here, `unreadMessages` is some kind of array and `{[plural(n)]}` points to the selected index.
 
-`plural()` returns zero | one | two | few | many | other, depending on `n` and the current language, as specified in the Unicode rules. If one of these indexes isn’t found, the `[other]` index will be used by default.
+`plural()` returns `zero | one | two | few | many | other`, depending on the param (`n`) and the current language, as specified in the Unicode rules. If one of these indexes isn’t specified,  `other` will be used in this case.
 
 
-### innerHTML
-
-By default, we currently assume that all strings are applied as `textContent`.
-However, you can modify the `innerHTML` property with a simple rule:
+### Changing DOM attributes
+By default, we currently assume that all strings are applied to  the `textContent` DOM node property.
+However, you can modify other properties of the appropriate DOM node by appending the property name like so:
 
 ```ini
 welcome.innerHTML = welcome, <strong>{{user}}</strong>!
-```
-
-Warning: this raises a few security questions that we haven’t addressed yet. In a future version we might:
-* sanitize the localized string before applying it as `innerHTML` (like in the PHP ``strip_tags`` method)
-* provide text-to-HTML methods (e.g. markdown) throught pseudo-properties, for example:
-
-```ini
-welcome#text = welcome, {{user}}!
-welcome#html = welcome, <strong>{{user}}</strong>!
-welcome#mark = welcome, **{{user}}**!
 ```
 
 
@@ -186,10 +178,8 @@ plural(n) = { n == 0 ? 'zero' : (n == 1 ? 'one' : 'other') }
 
 
 # Browser support
-
 Should work with Firefox, Chrome, Opera and Internet Explorer 6 to 10.
 
 
 # License
-
-MIT license. 
+MIT license.
