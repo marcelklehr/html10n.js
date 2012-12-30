@@ -21,8 +21,29 @@
  * IN THE SOFTWARE.
  */
 window.html10n = (function(window, document, undefined) {
-  var consoleLog = console? console.log : function() {}
-    , consoleWarn = console? console.warn : function() {}
+  var console = window.console
+  function interceptConsole(method){
+      var original = console[method]
+
+      if (!console) return function() {}
+
+      // do sneaky stuff
+      if (original.bind){
+        // Do this for normal browsers
+        return original.bind(console)
+      }else{
+        return function() {
+          // Do this for IE
+          var message = Array.prototype.slice.apply(arguments).join(' ')
+          original(message)
+        }
+      }
+  }
+  var consoleLog = interceptConsole('log')
+    , consoleWarn = interceptConsole('warn')
+    , consoleError = interceptConsole('warn')
+
+
     
   /**
    * MicroEvent - to make any js object an event emitter (server or browser)
@@ -163,6 +184,8 @@ window.html10n = (function(window, document, undefined) {
   MicroEvent.mixin(html10n)
   
   html10n.macros = {}
+
+  html10n.rtl = ["ar","dv","fa","ha","he","ks","ku","ps","ur","yi"]
   
   /**
    * Get rules for plural forms (shared with JetPack), see:
@@ -736,7 +759,7 @@ window.html10n = (function(window, document, undefined) {
     str.id = node.getAttribute('data-l10n-id')
     if (!str.id) return
 
-    if(!translations[str.id]) return consoleWarn('Couoldn\'t find translation key '+str.id)
+    if(!translations[str.id]) return consoleWarn('Couldn\'t find translation key '+str.id)
 
     // get args
     if(window.JSON) {
@@ -829,6 +852,14 @@ window.html10n = (function(window, document, undefined) {
    */
   html10n.getLanguage = function() {
     return this.language;
+  }
+
+  /**
+   * Returns the direction of the language returned be html10n#getLanguage
+   */
+  html10n.getDirection = function() {
+    var langCode = this.language.indexOf('-') == -1? this.language : this.language.substr(0, this.language.indexOf('-'))
+    return html10n.rtl.indexOf(langCode) == -1? 'ltr' : 'rtl'
   }
 
   /**
