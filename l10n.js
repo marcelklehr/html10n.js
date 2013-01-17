@@ -23,9 +23,9 @@
 window.html10n = (function(window, document, undefined) {
   var console = window.console
   function interceptConsole(method){
-      var original = console[method]
-
       if (!console) return function() {}
+
+      var original = console[method]
 
       // do sneaky stuff
       if (original.bind){
@@ -879,13 +879,13 @@ window.html10n = (function(window, document, undefined) {
   }
   
   if (document.addEventListener) // modern browsers and IE9+
-   document.addEventListener('DOMContentLoaded', function() {
-     html10n.index()
-   }, false)
+    document.addEventListener('DOMContentLoaded', function() {
+      html10n.index()
+    }, false)
   else if (window.attachEvent)
-    document.attachEvent('onload', function() {
-     html10n.index()
-   }, false)
+    window.attachEvent('onload', function() {
+      html10n.index()
+    }, false)
 
   // gettext-like shortcut
   if (window._ === undefined)
