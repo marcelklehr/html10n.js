@@ -46,7 +46,20 @@ window.html10n = (function(window, document, undefined) {
     , consoleError = interceptConsole('warn')
 
 
-  // fix Array.prototype.instanceOf in, guess what, IE! <3
+  // fix Array#forEach in IE
+  // taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
+  if (!Array.prototype.forEach) {
+    Array.prototype.forEach = function(fn, scope) {
+      for(var i = 0, len = this.length; i < len; ++i) {
+        if (i in this) {
+          fn.call(scope, this[i], i, this);
+        }
+      }
+    };
+  }
+
+  // fix Array#indexOf in, guess what, IE! <3
+  // taken from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/indexOf
   if (!Array.prototype.indexOf) {
     Array.prototype.indexOf = function (searchElement /*, fromIndex */ ) {
       "use strict";
