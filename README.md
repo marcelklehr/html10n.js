@@ -121,7 +121,7 @@ This can be solved by using the pre-defined `plural()` macro:
 ```json
 {
 "en": {
- "unreadMessages": "You have {[ plural(n) one: one, zero: no, other: {{n}} ]} unread {[ plural(n) one: message, other: messages ]}"
+ "unreadMessages": "You have {{n}} unread {[ plural(n) one: message, other: messages ]}"
 }
 }
 ```
