@@ -110,7 +110,7 @@ If you don’t want to have all your locales in a single file, simply use an inc
 
 ### Pluralization
 
-The following strings might be gramatically incorrect when `n` equals zero or one:
+The following string might be gramatically incorrect when `n` equals zero or one:
 
 ```
 "unread": "You have {{n}} unread messages"
@@ -121,24 +121,25 @@ This can be solved by using the pre-defined `plural()` macro:
 ```json
 {
 "en": {
- "unreadMessages": "{[ plural(n) ]}"
- "unreadMessages[zero]": "You have no unread messages"
- "unreadMessages[one]": "You have one unread message"
- "unreadMessages[other]": "You have {{n}} unread messages"
-},
-"fr": {
- "unreadMessages": "{[ plural(n) ]}"
- "unreadMessages[zero]": "Vous n’avez pas de nouveau message"
- "unreadMessages[one]": "Vous avez un nouveau message"
- "unreadMessages[other]": "Vous avez {{n}} nouveaux messages"
+ "unreadMessages": "You have {[ plural(n) one: one, zero: no, other: {{n}} ]} unread {[ plural(n) one: message, other: messages ]}"
 }
 }
 ```
 
-Here, `unreadMessages` is some kind of array and `{[plural(n)]}` points to the selected index.
+Here, `plural()` is a macro taking a selector param based on which it picks on of the provided options.
 
-`plural()` returns `zero | one | two | few | many | other`, depending on the param (`n`) and the current language, as specified in the Unicode rules. If one of these indexes isn’t specified,  `other` will be used in this case.
+`plural()` chooses between `zero | one | two | few | many | other`, depending on the param (`n`) and the current language, as specified in the Unicode rules. If one of these indexes isn’t specified,  `other` will be used in this case.
 
+
+### Macros
+Macros are defined in `html10n.macros` as functions taking the following arguments: `(key, translations, param, opts)`, where
+
+ * `key` (String) is the key of the current message
+ * `translations` (Object) is a hash of all messages by key
+ * `param` (String) is the value of the argument, passed as the macro parameter
+ * `opts` (Object) is a hash of options that may be used to produce the output (s. `plural()` macro above)
+
+All macros should return a string that will replace the macro in the message.
 
 ### Changing DOM attributes
 By default, we currently assume that all strings are applied to  the `textContent` DOM node property.
@@ -146,34 +147,6 @@ However, you can modify other properties of the appropriate DOM node by appendin
 
 ```ini
 welcome.innerHTML = welcome, <strong>{{user}}</strong>!
-```
-
-
-# Further thoughts
-
-### Media queries
-
-For mobile apps, here’s what I’d like to do:
-
-```html
-<link rel="resource" type="application/l10n" href="data.ini" />
-<link rel="resource" type="application/l10n" href="mobile.ini"
-      media="screen and (max-width: 640px)" />
-```
-
-### More structured syntax
-
-There are cases where the entity has to be an array or a list (e.g. to handle plural rules), instead of a string. Currently we use the `entity[key]` notation but a more compact syntax could be supported as well.
-
-
-### Logical expressions
-
-The Mozilla l20n/LOL project introduces the concept of “expression”, which can be used to address most grammatical rules or some very specific situations.
-
-The `plural()` macro above could be easily defined as an expression:
-
-```ini
-plural(n) = { n == 0 ? 'zero' : (n == 1 ? 'one' : 'other') }
 ```
 
 
