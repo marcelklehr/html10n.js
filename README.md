@@ -132,11 +132,10 @@ Here, `plural()` is a macro taking a selector param based on which it picks on o
 
 
 ### Macros
-Macros are defined in `html10n.macros` as functions taking the following arguments: `(key, translations, param, opts)`, where
+Macros are defined in `html10n.macros` as functions taking the following arguments: `(key, param, opts)`, where
 
  * `key` (String) is the key of the current message
- * `translations` (Object) is a hash of all messages by key
- * `param` (String) is the value of the argument, passed as the macro parameter
+ * `param` (mixed) is the value of the argument, passed as the macro parameter
  * `opts` (Object) is a hash of options that may be used to produce the output (s. `plural()` macro above)
 
 All macros should return a string that will replace the macro in the message.

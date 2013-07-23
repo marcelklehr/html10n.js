@@ -647,7 +647,7 @@ window.html10n = (function(window, document, undefined) {
   /**
    * pre-defined 'plural' macro
    */
-  html10n.macros.plural = function(key, translations, param, opts) {
+  html10n.macros.plural = function(key, param, opts) {
     var str
       , n = parseFloat(param);
     if (isNaN(n))
@@ -666,7 +666,7 @@ window.html10n = (function(window, document, undefined) {
     } else if (n == 2 && ('two') in opts) {
       str = opts['two'];
     } else if (index in opts) {
-      str = opts[index][prop];
+      str = opts[index];
     }
 
     return str;
@@ -745,10 +745,14 @@ window.html10n = (function(window, document, undefined) {
     if(!translations[id]) return consoleWarn('Could not find string '+id)
     
     // apply macros
-    return substMacros(id, str, args)
+    var str = translations[id]
+    
+    str = substMacros(id, str, args)
     
     // apply args
-    var str = substArguments(translations[id], args)
+    str = substArguments(str, args)
+    
+    return str
   }
   
   // replace {{arguments}} with their values or the
@@ -780,19 +784,15 @@ window.html10n = (function(window, document, undefined) {
   
   // replace {[macros]} with their values
   function substMacros(key, str, args) {
-    var globalRegex = /\{\[\s*([a-zA-Z]+)\(([a-zA-Z]+)\)((\s*([a-zA-Z]+)\: ?([ a-zA-Z{}]+),?)+)*\s*\]\}/g //.exec('{[ plural(n) other: are {{n}}, one: is ]}')
-      , regex =  /\{\[\s*([a-zA-Z]+)\(([a-zA-Z]+)\)((\s*([a-zA-Z]+)\: ?([ a-zA-Z{}]+),?)+)*\s*\]\}/
-      , matches = globalRegex.exec(str).length
+    var regex = /\{\[\s*([a-zA-Z]+)\(([a-zA-Z]+)\)((\s*([a-zA-Z]+)\: ?([ a-zA-Z{}]+),?)+)*\s*\]\}/ //.exec('{[ plural(n) other: are {{n}}, one: is ]}')
+      , match
     
-    for(var i=0; i < matches, i++) {
-      var match = regex.exec(str)
-      if (!match || !match.length) continue;
-
+    while(match = regex.exec(str)) {
       // a macro has been found
       // Note: at the moment, only one parameter is supported
       var macroName = match[1]
         , paramName = match[2]
-        , optv = reMatch[3]
+        , optv = match[3]
         , opts = {}
       
       if (!(macroName in html10n.macros)) continue
@@ -809,13 +809,13 @@ window.html10n = (function(window, document, undefined) {
       var param
       if (args && paramName in args) {
         param = args[paramName]
-      } else if (paramName in translations) {
+      } else if (paramName in html10n.translations) {
         param = translations[paramName]
       }
 
       // there's no macro parser: it has to be defined in html10n.macros
       var macro = html10n.macros[macroName]
-      str = str.substr(0, match.index) + macro(key, translations, param, opts) + str.substr(match.index)
+      str = str.substr(0, match.index) + macro(key, param, opts) + str.substr(match.index+match[0].length)
     }
     
     return str
