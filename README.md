@@ -1,12 +1,12 @@
 # client-side, cross-browser l10n for modern web applications
 
-Unlike other i18n/l10n libraries, html10n.js supports:
+Unlike other i18n/l10n libraries, html10n.js provides:
 
 * declarative localization: elements with `l10n-*` attributes are automatically translated when the document is loaded
 * named variables instead of printf-like `%s` tokens
 * a simple and full-featured pluralization system
 
-Thanks to @fabi1cazenave for his original work on [webL10n](https://github.com/fabi1cazenave/webL10n/wiki) on which this project is based. Instead of featuring some weird `*.ini`/`*.properties`/`*.lol` format, this project expects translations to be provided in JSON for easier handling in JavaScript and better client-side performance.
+Thanks to @fabi1cazenave for his original work on [webL10n](https://github.com/fabi1cazenave/webL10n/wiki) on which this project is based. Instead of featuring some `*.ini`/`*.properties`/`*.lol` format, this project expects translations to be provided in JSON for easier handling in JavaScript and better client-side performance.
 
 ## Example
 
@@ -24,9 +24,9 @@ Here’s a quick way to get a multilingual HTML page:
 </html>
 ```
 
-* l10n resource files are associated to the HTML document with a ``<link>`` element
-* translatable elements carry a ``data-l10n-id`` attribute
-* l10n resources are stored in a bullet-proof ``*.json`` file:
+* l10n resource files are associated to the HTML document with a `<link>` element
+* translatable elements carry a `data-l10n-id` attribute and optionally a `data-l10n-args` attribute containing the message arguments as JSON.
+* l10n resources are stored in a bullet-proof `*.json` file:
 
 ```json
 {
@@ -44,10 +44,10 @@ Here’s a quick way to get a multilingual HTML page:
 
 # JavaScript API
 
-`html10n.js` exposes a rather simple `html10n` object.
+`html10n.js` exposes a rather simple API, all contained in the `html10n` object.
 
 * `localized` event: fired when the page has been translated;
-* `localize`set the ISO-639-1 code of the current locale and start translating the document;
+* `localize` method: set the ISO-639-1 code of the current locale and start translating the document;
 * `get` method: get a translated string.
 
 ```javascript
@@ -128,7 +128,7 @@ This can be solved by using the pre-defined `plural()` macro:
 
 Here, `plural()` is a macro taking a selector param based on which it picks on of the provided options.
 
-`plural()` chooses between `zero | one | two | few | many | other`, depending on the param (`n`) and the current language, as specified in the Unicode rules. If one of these indexes isn’t specified,  `other` will be used in this case.
+`plural()` chooses between `zero | one | two | few | many | other`, depending on the param (`n`) and the current language, as specified in the [Unicode plural rules](http://www.unicode.org/cldr/charts/supplemental/language_plural_rules.html). If one of these indexes isn’t specified in your message, `other` will be used instead.
 
 
 ### Macros
