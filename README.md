@@ -51,10 +51,11 @@ Here’s a quick way to get a multilingual HTML page:
 * `get` method: get a translated string.
 
 ```javascript
-html10n.localize('fr')
-html10n.on('localized', function() {
-  console.log('Localized!')
+html10n.bind("localized", function() {
+  console.log("Localized!");
 });
+
+html10n.localize('fr');
 ```
 
 ```javascript
