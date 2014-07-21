@@ -793,7 +793,7 @@ window.html10n = (function(window, document, undefined) {
   
   // replace {[macros]} with their values
   function substMacros(key, str, args) {
-    var regex = /\{\[\s*([a-zA-Z]+)\(([a-zA-Z]+)\)((\s*([a-zA-Z]+)\: ?([ a-zA-Z{}]+),?)+)*\s*\]\}/ //.exec('{[ plural(n) other: are {{n}}, one: is ]}')
+    var regex = /\{\[\s*([a-zA-Z]+)\(([a-zA-Z]+)\)((\s*([a-zA-Z]+)\: ?([^,]+?),?)+)*\s*\]\}/ //.exec('{{n}} {[plural(n) one: Bomba, other: Bombe]} ]}')
       , match
     
     while(match = regex.exec(str)) {

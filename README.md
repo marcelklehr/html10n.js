@@ -141,12 +141,14 @@ Macros are defined in `html10n.macros` as functions taking the following argumen
 
 All macros should return a string that will replace the macro in the message.
 
-### Changing DOM attributes
-By default, we currently assume that all strings are applied to  the `textContent` DOM node property.
-However, you can modify other properties of the appropriate DOM node by appending the property name like so:
+### Translating DOM properties
+By default, we currently assume that all strings are applied to the `textContent` DOM node property.
+However, you can modify other properties of the relevant DOM nodes by choosing a message id that ends with the property name like so:
 
-```ini
-welcome.innerHTML = welcome, <strong>{{user}}</strong>!
+```json
+{
+  "welcome.innerHTML": "welcome, <strong>{{user}}</strong>!"
+}
 ```
 
 
