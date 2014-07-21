@@ -58,6 +58,8 @@ html10n.bind("localized", function() {
 html10n.localize('fr');
 ```
 
+Do note, that html1n.js waits for the document to be fully loaded, until it loads translation. You could circumvent this by calling `html10n.index()` manually, but it's not advised.
+
 ```javascript
 var message = html10n.get('test');
 alert(message);
