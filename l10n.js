@@ -770,7 +770,7 @@ window.html10n = (function(window, document, undefined) {
   // replace {{arguments}} with their values or the
   // associated translation string (based on its key)
   function substArguments(str, args) {
-    var reArgs = /\{\{\s*([a-zA-Z\.]+)\s*\}\}/
+    var reArgs = /\{\{\s*([a-zA-Z_\-\.]+)\s*\}\}/
       , match
     
     while (match = reArgs.exec(str)) {
