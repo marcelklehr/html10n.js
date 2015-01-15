@@ -192,7 +192,7 @@ window.html10n = (function(window, document, undefined) {
     }
 
     // dat alng ain't here, man!
-    if (!data[lang]) {
+    if (!data) {
       var msg = 'Couldn\'t find translations for '+lang
         , l
       if(~lang.indexOf('-')) lang = lang.split('-')[0] // then let's try related langs
@@ -220,12 +220,12 @@ window.html10n = (function(window, document, undefined) {
       return
     }
 
-    if ('object' != typeof data[lang]) {
+    if ('object' != typeof data) {
       cb(new Error('Translations should be specified as JSON objects!'))
       return
     }
 
-    this.langs[lang] = data[lang]
+    this.langs[lang] = data
     // TODO: Also store accompanying langs
     cb()
   }
@@ -750,7 +750,10 @@ window.html10n = (function(window, document, undefined) {
   
   html10n.get = function(id, args) {
     var translations = html10n.translations
-    if(!translations) return consoleWarn('No translations available (yet)')
+    if(!translations) {
+      if (! html10n.quiet) { consoleWarn('No translations available (yet)'); }
+      return;
+    }
     if(!translations[id]) return consoleWarn('Could not find string '+id)
     
     // apply macros
