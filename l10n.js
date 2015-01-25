@@ -681,24 +681,37 @@ window.html10n = (function(window, document, undefined) {
     return str;
   };
   
-  /**
-   * Localize a document
-   * @param langs An array of lang codes defining fallbacks
+  /** Prepare localization context:
+   *
+   * - Populate translations with strings for the indicated languages
+   *   - adding in non-qualified versions of language codes immediately
+   *     after any qualified (e.g., "en" for "en-GB")
+   * - Trigger "localized" event.
+   *
+   * @param {array} langs: diminishing-precedence lang codes, or one string.
    */
   html10n.localize = function(langs) {
-    var that = this
-    // if only one string => create an array
-    if ('string' == typeof langs) langs = [langs]
+    var that = this,
+        candidates = [];
+    // if a single string, bundle it as an array:
+    if ('string' == typeof langs) {
+      langs = [langs];
+    }
 
-    // Expand two-part locale specs
-    var i=0
+    // Determine candidates from langs:
+    // - Omitting empty strings
+    // - Adding in non-qualified versions of country-qualified codes.
     langs.forEach(function(lang) {
-      if(!lang) return
-      langs[i++] = lang
-      if(~lang.indexOf('-')) langs[i++] = lang.substr(0, lang.indexOf('-'))
-    })
+      var splat;
+      if(!lang) { return; }
+      (candidates.indexOf(lang) == -1) && candidates.push(lang);
+      splat = lang.split('-');
+      if (splat[1]) {
+        (candidates.indexOf(splat[0]) == -1) && candidates.push(splat[0]);
+      }
+    });
 
-    this.build(langs, function(er, translations) {
+    this.build(candidates, function(er, translations) {
       html10n.translations = translations
       html10n.translateElement(translations)
       that.trigger('localized')
