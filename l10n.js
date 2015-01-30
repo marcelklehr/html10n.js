@@ -844,7 +844,7 @@ window.html10n = (function(window, document, undefined) {
 
     // get args
     if(window.JSON) {
-      str.args = JSON.parse(node.getAttribute('data-l10n-args'))
+      str.args = node.getAttribute('data-l10n-args') ? JSON.parse(node.getAttribute('data-l10n-args')) : [];
     }else{
       try{
         str.args = eval(node.getAttribute('data-l10n-args'))
