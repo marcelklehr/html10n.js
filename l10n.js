@@ -783,21 +783,23 @@ window.html10n = (function(window, document, undefined) {
   // replace {{arguments}} with their values or the
   // associated translation string (based on its key)
   function substArguments(str, args) {
-    var reArgs = /\{\{\s*([a-zA-Z_\-\.]+)\s*\}\}/
-      , match
-    
+    var reArgs = /\{\{\s*([a-zA-Z_\-\.]+)\s*\}\}/,
+        translations = html10n.translations,
+        match;
+
     while (match = reArgs.exec(str)) {
       if (!match || match.length < 2)
         return str // argument key not found
 
       var arg = match[1]
         , sub = ''
-      if (arg in args) {
+      if (args && (arg in args)) {
         sub = args[arg]
       } else if (arg in translations) {
         sub = translations[arg]
       } else {
-        consoleWarn('Could not find argument {{' + arg + '}}')
+        consoleWarn('Could not satisfy argument {{' + arg + '}}' +
+                    ' for string "' + str + '"');
         return str
       }
 
