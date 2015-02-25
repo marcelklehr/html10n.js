@@ -764,7 +764,9 @@ window.html10n = (function(window, document, undefined) {
   html10n.get = function(id, args) {
     var translations = html10n.translations
     if(!translations) {
-      if (! html10n.quiet) { consoleWarn('No translations available (yet)'); }
+      if (! html10n.quiet) {
+        consoleWarn('No translations available (yet)');
+      }
       return;
     }
     if(!translations[id]) return consoleWarn('Could not find string '+id)
