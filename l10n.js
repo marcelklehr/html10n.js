@@ -192,7 +192,7 @@ window.html10n = (function(window, document, undefined) {
     }
 
     // dat alng ain't here, man!
-    if (!data[lang]) {
+    if (!data) {
       var msg = 'Couldn\'t find translations for '+lang
         , l
       if(~lang.indexOf('-')) lang = lang.split('-')[0] // then let's try related langs
@@ -220,12 +220,12 @@ window.html10n = (function(window, document, undefined) {
       return
     }
 
-    if ('object' != typeof data[lang]) {
+    if ('object' != typeof data) {
       cb(new Error('Translations should be specified as JSON objects!'))
       return
     }
 
-    this.langs[lang] = data[lang]
+    this.langs[lang] = data
     // TODO: Also store accompanying langs
     cb()
   }
@@ -692,30 +692,43 @@ window.html10n = (function(window, document, undefined) {
     return str;
   };
   
-  /**
-   * Localize a document
-   * @param langs An array of lang codes defining fallbacks
+  /** Prepare localization context:
+   *
+   * - Populate translations with strings for the indicated languages
+   *   - adding in non-qualified versions of language codes immediately
+   *     after any qualified (e.g., "en" for "en-GB")
+   * - Trigger "localized" event.
+   *
+   * @param {array} langs: diminishing-precedence lang codes, or one string.
    */
   html10n.localize = function(langs) {
-    var that = this
-    // if only one string => create an array
-    if ('string' == typeof langs) langs = [langs]
+    var that = this,
+        candidates = [];
+    // if a single string, bundle it as an array:
+    if ('string' == typeof langs) {
+      langs = [langs];
+    }
 
-    // Expand two-part locale specs
-    var i=0
+    // Determine candidates from langs:
+    // - Omitting empty strings
+    // - Adding in non-qualified versions of country-qualified codes.
     langs.forEach(function(lang) {
-      if(!lang) return
-      langs[i++] = lang.toLowerCase();
-      if(~lang.indexOf('-')) langs[i++] = lang.substr(0, lang.indexOf('-'))
-    })
+      var splat;
+      if(!lang) { return; }
+      (candidates.indexOf(lang) == -1) && candidates.push(lang);
+      splat = lang.split('-');
+      if (splat[1]) {
+        (candidates.indexOf(splat[0]) == -1) && candidates.push(splat[0]);
+      }
+    });
     
     // Append script fallbacks for region-specific locales if applicable
     for (var lang in html10n.scripts) {
-      i = langs.indexOf(lang);
-      if (~i) langs.splice(i, 0, html10n.scripts[lang])
+      i = candidates.indexOf(lang);
+      if (~i) candidates.splice(i, 0, html10n.scripts[lang])
     }
 
-    this.build(langs, function(er, translations) {
+    this.build(candidates, function(er, translations) {
       html10n.translations = translations
       html10n.translateElement(translations)
       that.trigger('localized')
@@ -767,7 +780,12 @@ window.html10n = (function(window, document, undefined) {
   
   html10n.get = function(id, args) {
     var translations = html10n.translations
-    if(!translations) return consoleWarn('No translations available (yet)')
+    if(!translations) {
+      if (! html10n.quiet) {
+        consoleWarn('No translations available (yet)');
+      }
+      return;
+    }
     if(!translations[id]) return consoleWarn('Could not find string '+id)
     
     // apply macros
@@ -784,21 +802,23 @@ window.html10n = (function(window, document, undefined) {
   // replace {{arguments}} with their values or the
   // associated translation string (based on its key)
   function substArguments(str, args) {
-    var reArgs = /\{\{\s*([a-zA-Z\.]+)\s*\}\}/
-      , match
-    
+    var reArgs = /\{\{\s*([a-zA-Z_\-\.]+)\s*\}\}/,
+        translations = html10n.translations,
+        match;
+
     while (match = reArgs.exec(str)) {
       if (!match || match.length < 2)
         return str // argument key not found
 
       var arg = match[1]
         , sub = ''
-      if (arg in args) {
+      if (args && (arg in args)) {
         sub = args[arg]
       } else if (arg in translations) {
         sub = translations[arg]
       } else {
-        consoleWarn('Could not find argument {{' + arg + '}}')
+        consoleWarn('Could not satisfy argument {{' + arg + '}}' +
+                    ' for string "' + str + '"');
         return str
       }
 
