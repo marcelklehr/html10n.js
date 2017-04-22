@@ -242,6 +242,17 @@ window.html10n = (function(window, document, undefined) {
   html10n.macros = {}
 
   html10n.rtl = ["ar","dv","fa","ha","he","ks","ku","ps","ur","yi"]
+
+  /** 
+   * Language-Script fallbacks for Language-Region language tags, for languages that
+   * varies heavily on writing form and two-part locale expansion is not feasible.
+   * See also: https://tools.ietf.org/html/rfc4646 (RFC 4646)
+   */
+  html10n.scripts = {
+      'zh-tw': 'zh-hant',
+      'zh-hk': 'zh-hant',
+      'zh-cn': 'zh-hans'
+  }
   
   /**
    * Get rules for plural forms (shared with JetPack), see:
@@ -694,9 +705,15 @@ window.html10n = (function(window, document, undefined) {
     var i=0
     langs.forEach(function(lang) {
       if(!lang) return
-      langs[i++] = lang
+      langs[i++] = lang.toLowerCase();
       if(~lang.indexOf('-')) langs[i++] = lang.substr(0, lang.indexOf('-'))
     })
+    
+    // Append script fallbacks for region-specific locales if applicable
+    for (var lang in html10n.scripts) {
+      i = langs.indexOf(lang);
+      if (~i) langs.splice(i, 0, html10n.scripts[lang])
+    }
 
     this.build(langs, function(er, translations) {
       html10n.translations = translations
