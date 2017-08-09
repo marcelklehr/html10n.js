@@ -844,7 +844,7 @@ window.html10n = (function(window, document, undefined) {
       if (!(macroName in html10n.macros)) continue
       
       if(optv) {
-        optv.match(/(?=\s*)([a-zA-Z]+)\: ?([ a-zA-Z{}]+)(?=,?)/g).forEach(function(arg) {
+        optv.match(/(?=\s*)([a-zA-Z]+)\: ?([^,\]]+)(?=,?)/g).forEach(function(arg) {
           var parts = arg.split(':')
             , name = parts[0]
             , value = parts[1].trim()
