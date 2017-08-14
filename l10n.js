@@ -901,6 +901,7 @@ window.html10n = (function(window, document, undefined) {
        , "alt": 1
        , "textContent": 1
        , "placeholder": 1
+       , "value": 1
        }
     if (index > 0 && str.id.substr(index + 1) in attrList) { // an attribute has been specified
       prop = str.id.substr(index + 1)
