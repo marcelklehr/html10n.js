@@ -180,7 +180,7 @@ window.html10n = (function(window, document, undefined) {
     }
 
     // dat alng ain't here, man!
-    if (!data) {
+    if (!data[lang]) {
       var msg = 'Couldn\'t find translations for '+lang
         , l
       if(~lang.indexOf('-')) lang = lang.split('-')[0] // then let's try related langs
@@ -208,12 +208,12 @@ window.html10n = (function(window, document, undefined) {
       return
     }
 
-    if ('object' != typeof data) {
+    if ('object' != typeof data[lang]) {
       cb(new Error('Translations should be specified as JSON objects!'))
       return
     }
 
-    this.langs[lang] = data
+    this.langs[lang] = data[lang]
     // TODO: Also store accompanying langs
     cb()
   }
