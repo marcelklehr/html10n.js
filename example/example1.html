@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <script type="text/javascript" src="../l10n.js"></script>
+  <link rel="localizations" href="i18n.json" type="application/l10n+json"/>
+</head>
+
+<body onload="html10n.localize('fr');">
+
+  <button onclick="html10n.localize('de');">de</button>
+  <button onclick="html10n.localize('en');">en</button>
+  <button onclick="html10n.localize('fr');">fr</button>
+  <button onclick="html10n.localize('eo');">eo</button>
+  <br />
+  <button data-l10n-id="test" title="click me!"></button>
+
+  <script type="text/javascript">
+    html10n.bind("localized", function() {
+      console.log("Localized!");
+    });
+  </script>
+
+</body>
+</html>
