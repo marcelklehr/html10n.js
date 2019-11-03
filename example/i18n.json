@@ -1,0 +1,18 @@
+{
+  "de":{
+    "test":"Das ist ein Test.",
+    "test.title":"Klick mich!"
+  },
+  "en":{
+    "test":"This is a test.",
+    "test.title":"Click me!"
+  },
+  "fr":{
+    "test":"Ceci est un test.",
+    "test.title":"cliquez-moi!"
+  },
+  "eo":{
+    "test":"Tio estas testo.",
+    "test.title":"Alklaku min!"
+  }
+}
